@@ -367,6 +367,8 @@ def dreambooth_api(_, app: FastAPI):
             new_concept.instance_prompt = "[filewords]"
             new_concept.save_sample_prompt = "[filewords]"
             new_concept.is_valid = os.path.exists(instance_dir)
+            concept = new_concept
+
 
         existing_concepts = config.concepts()
         replaced = False
@@ -380,7 +382,7 @@ def dreambooth_api(_, app: FastAPI):
             new_concepts.append(concept.__dict__)
         config.concepts_list = new_concepts
         config.save()
-        return JSONResponse(content=config.concepts())
+        return JSONResponse(content=[obj.to_dict() for obj in config.concepts()])
 
     @app.get("/dreambooth/concepts")
     async def get_model_concepts(
@@ -399,7 +401,7 @@ def dreambooth_api(_, app: FastAPI):
         if config is None:
             return JSONResponse(status_code=422, content={"message": "Invalid config."})
 
-        return JSONResponse(content=config.concepts())
+        return JSONResponse(content=[obj.to_dict() for obj in config.concepts()])
 
     @app.post("/dreambooth/concepts")
     async def set_model_concepts(
@@ -423,7 +425,7 @@ def dreambooth_api(_, app: FastAPI):
             new_concepts.append(concept.__dict__)
         config.concepts_list = new_concepts
         config.save()
-        return JSONResponse(content=config.concepts())
+        return JSONResponse(content=[obj.to_dict() for obj in config.concepts()])
 
     @app.post("/dreambooth/createModel")
     async def create_db_model(
